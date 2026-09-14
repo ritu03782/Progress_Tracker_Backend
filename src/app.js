@@ -19,6 +19,8 @@ import weakTopicRouter from './routes/weakTopic.routes.js'
 import subjectRouter from './routes/subject.routes.js'
 import goalRouter from './routes/goal.routes.js'
 import projectRouter from './routes/project.routes.js'
+import applicationRouter from './routes/application.routes.js'
+import contestRouter from './routes/contest.routes.js'
 import { errorHandler } from "./middlewares/error.middleware.js";
 
 //routes declaration
@@ -29,6 +31,8 @@ app.use("/api/v1/weak-topics",weakTopicRouter)
 app.use("/api/v1/subjects",subjectRouter)
 app.use("/api/v1/goals",goalRouter)
 app.use("/api/v1/projects",projectRouter)
+app.use("/api/v1/applications",applicationRouter)
+app.use("/api/v1/contests",contestRouter)
 
 // error handler — must be registered AFTER all routes
 app.use(errorHandler)
