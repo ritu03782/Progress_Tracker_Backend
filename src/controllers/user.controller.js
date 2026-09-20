@@ -246,6 +246,25 @@ const updateAccountDetails=asyncHandler(async(req,res)=>{
      .json(new ApiResponse(200,user,"Account details updated successfully"))
 });
 
+const updatePreferences=asyncHandler(async(req,res)=>{
+     const {notifications,studyReminders,goalReminders}=req.body;
+     const updateFields = {
+        ...(notifications !== undefined && {notifications: Boolean(notifications)}),
+        ...(studyReminders !== undefined && {studyReminders: Boolean(studyReminders)}),
+        ...(goalReminders !== undefined && {goalReminders: Boolean(goalReminders)}),
+     };
+     const user= await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+             $set:updateFields
+        },
+        {new :true, runValidators:true}
+     ).select("-password -refreshToken");
+     return res
+     .status(200)
+     .json(new ApiResponse(200,user,"Preferences updated successfully"))
+});
+
 const updateUserAvatar=asyncHandler(async(req,res)=>{
     const avatarLocalPath = req.file?.path;
     if(!avatarLocalPath){
@@ -280,4 +299,4 @@ const updateUserAvatar=asyncHandler(async(req,res)=>{
         .json(new ApiResponse(200,user,"Avatar updated successfully"))
 });
 
-export  {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updateUserAvatar};
+export  {registerUser,loginUser,logoutUser,refreshAccessToken,changeCurrentPassword,getCurrentUser,updateAccountDetails,updatePreferences,updateUserAvatar};

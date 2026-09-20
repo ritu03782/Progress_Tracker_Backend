@@ -21,6 +21,10 @@ import goalRouter from './routes/goal.routes.js'
 import projectRouter from './routes/project.routes.js'
 import applicationRouter from './routes/application.routes.js'
 import contestRouter from './routes/contest.routes.js'
+import scheduleTaskRouter from './routes/scheduleTask.routes.js'
+import dashboardRouter from './routes/dashboard.routes.js'
+import noteRouter from './routes/note.routes.js'
+import settingsRouter from './routes/settings.routes.js'
 import { errorHandler } from "./middlewares/error.middleware.js";
 
 //routes declaration
@@ -33,6 +37,10 @@ app.use("/api/v1/goals",goalRouter)
 app.use("/api/v1/projects",projectRouter)
 app.use("/api/v1/applications",applicationRouter)
 app.use("/api/v1/contests",contestRouter)
+app.use("/api/v1/schedule",scheduleTaskRouter)
+app.use("/api/v1/dashboard",dashboardRouter)
+app.use("/api/v1/notes",noteRouter)
+app.use("/api/v1/settings",settingsRouter)
 
 // error handler — must be registered AFTER all routes
 app.use(errorHandler)

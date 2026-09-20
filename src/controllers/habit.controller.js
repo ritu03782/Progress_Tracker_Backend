@@ -3,15 +3,7 @@ import { HabitLog } from "../models/habitLog.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-
-const MS_DAY = 24 * 60 * 60 * 1000;
-
-const toDateKey = (date) => new Date(date).toISOString().slice(0, 10);
-
-const startOfUTCDay = (date = new Date()) => {
-  const d = new Date(date);
-  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-};
+import { MS_DAY, startOfUTCDay, toDateKey } from "../utils/dateUtils.js";
 
 // Accepts an optional "YYYY-MM-DD" (or any parseable date) and normalizes
 // it to UTC midnight; defaults to today.
@@ -52,6 +44,21 @@ async function computeHabitStats(habitId, createdAt) {
     cursor = new Date(cursor.getTime() - MS_DAY);
   }
 
+  // Longest run anywhere in the lookback window — powers the Dashboard's
+  // "Best: N Days" subtitle. Not just the current streak: an old, broken
+  // streak can still be the best one ever.
+  let bestStreak = 0;
+  let running = 0;
+  for (let day = new Date(lookbackStart); day <= today; day = new Date(day.getTime() + MS_DAY)) {
+    if (completedSet.has(toDateKey(day))) {
+      running++;
+      bestStreak = Math.max(bestStreak, running);
+    } else {
+      running = 0;
+    }
+  }
+  bestStreak = Math.max(bestStreak, streak);
+
   // Completion rate over a trailing window: since creation, capped at 30
   // days so an old habit's one bad week doesn't get diluted into invisibility.
   const daysSinceCreation = Math.floor((today - startOfUTCDay(createdAt)) / MS_DAY) + 1;
@@ -63,7 +70,7 @@ async function computeHabitStats(habitId, createdAt) {
   ).length;
   const completionRate = Math.round((completedInWindow / windowDays) * 100);
 
-  return { history, completedToday, streak, completionRate };
+  return { history, completedToday, streak, bestStreak, completionRate };
 }
 
 // Shapes a Habit doc + computed stats into exactly what the frontend's
@@ -81,6 +88,7 @@ const shapeHabit = (habitDoc, stats) => ({
   completed: stats.completedToday,
   progress: stats.completedToday ? 100 : 0,
   streak: stats.streak,
+  bestStreak: stats.bestStreak,
   completionRate: stats.completionRate,
   history: stats.history,
   createdAt: habitDoc.createdAt,
@@ -309,4 +317,5 @@ export {
   getMissedHabits,
   dismissMissedHabit,
   getHeatmap,
+  computeHabitStats,
 };
