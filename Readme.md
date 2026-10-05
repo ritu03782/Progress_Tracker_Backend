@@ -1,1 +1,1 @@
-Project to learn backend development by building something 
+Backend of my progress tracker website
